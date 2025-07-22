@@ -1,5 +1,7 @@
 # Multi-Agent Weather System with n8n
 
+![Status: Live](https://img.shields.io/badge/Status-Live-brightgreen) ![Version](https://img.shields.io/badge/Version-1.0.0-blue) ![Framework](https://img.shields.io/badge/Framework-n8n-orange) ![AI Agents](https://img.shields.io/badge/AI%20Agents-4-purple) ![Architecture](https://img.shields.io/badge/Architecture-Multi--Agent-success) ![License](https://img.shields.io/badge/License-MIT-green)
+
 A sophisticated 12-node n8n workflow that demonstrates multi-agent AI architecture for weather information retrieval and general question handling.
 
 ## 🌟 Features
