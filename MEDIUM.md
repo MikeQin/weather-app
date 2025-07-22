@@ -27,6 +27,9 @@ flowchart LR
     B --> C[Intent Classification]
     C --> D[Specialized Sub-Agents]
     D --> E[Formatted Response]
+    
+    classDef aiAgent fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    class B,D aiAgent
 ```
 
 Our system consists of:
@@ -34,6 +37,29 @@ Our system consists of:
 - 🤖 **3 Specialized Sub-Agents**: Alert formatting, forecast formatting, and geocoding
 - 🌐 **4 HTTP Request Nodes**: Real-time API integration
 - ⚙️ **4 Workflow Control Nodes**: Routing, parsing, and response handling
+
+### Detailed System Architecture
+
+```mermaid
+flowchart TD
+    A[Chat Trigger Node] --> B[Supervisor AI Agent]
+    B --> C[JSON Parser Code Node]
+    C --> D[Intent Switch Node]
+    D -->|Alerts| E[NWS Alerts HTTP Request]
+    D -->|Forecast| F[Geocoding AI Agent]
+    D -->|General| G[Text Extractor Code Node]
+    G --> H[Respond to Webhook Node]
+    E --> I[Alert Formatter AI Agent]
+    F --> J[NWS Points HTTP Request]
+    J --> K[NWS Forecast HTTP Request]
+    K --> L[Forecast Formatter AI Agent]
+    I --> M[User Response]
+    L --> N[User Response]
+    H --> O[User Response]
+    
+    classDef aiAgent fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    class B,F,I,L aiAgent
+```
 
 ## 🏗️ Deep Dive: The 12-Node Architecture
 
@@ -237,10 +263,12 @@ The multi-agent approach isn't just a technical choice—it's a fundamental shif
 
 Want to build your own multi-agent system? 
 
-1. **Download our complete workflow**: [weather-app.json](weather-app.json)
-2. **Read the implementation guide**: [N8N-WORKFLOW.md](N8N-WORKFLOW.md)  
-3. **Study the comprehensive PRD**: [generated-PRD.md](generated-PRD.md)
-4. **Explore the architecture**: [CLAUDE.md](CLAUDE.md)
+**🚀 GitHub Repository**: https://github.com/MikeQin/weather-app
+
+1. **Download our complete workflow**: [weather-app.json](https://github.com/MikeQin/weather-app/blob/main/weather-app.json)
+2. **Read the implementation guide**: [N8N-WORKFLOW.md](https://github.com/MikeQin/weather-app/blob/main/N8N-WORKFLOW.md)  
+3. **Study the comprehensive PRD**: [generated-PRD.md](https://github.com/MikeQin/weather-app/blob/main/generated-PRD.md)
+4. **Explore the architecture**: [CLAUDE.md](https://github.com/MikeQin/weather-app/blob/main/CLAUDE.md)
 
 The future of AI is collaborative, specialized, and workflow-driven. Start building yours today.
 
