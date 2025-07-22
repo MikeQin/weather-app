@@ -2,6 +2,7 @@
 
 *How we architected a sophisticated 12-node workflow that handles weather alerts, forecasts, and general queries using AI agents and workflow automation*
 
+### Production-Ready n8n Workflow Implementation
 ![Weather App n8n Workflow](weather-app-n8n.jpg)
 
 ## 🚧 The Challenge: Beyond Single-Agent Limitations

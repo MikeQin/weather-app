@@ -2,8 +2,6 @@
 
 A sophisticated 12-node n8n workflow that demonstrates multi-agent AI architecture for weather information retrieval and general question handling.
 
-![Weather App n8n Workflow](weather-app-n8n.jpg)
-
 ## 🌟 Features
 
 - **Weather Alerts**: Get active weather alerts by US state
@@ -13,7 +11,46 @@ A sophisticated 12-node n8n workflow that demonstrates multi-agent AI architectu
 - **Real-time Data**: Live integration with National Weather Service API
 - **Clean Responses**: Formatted, user-friendly output
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Implementation
+
+### Visual Workflow Overview
+![Weather App n8n Workflow](weather-app-n8n.jpg)
+
+### Multi-Agent System Overview
+
+```mermaid
+flowchart LR
+    A[User Input] --> B[Supervisor Agent]
+    B --> C[Intent Classification]
+    C --> D[Specialized Sub-Agents]
+    D --> E[Formatted Response]
+    
+    classDef aiAgent fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    class B,D aiAgent
+```
+
+### Detailed System Architecture
+
+```mermaid
+flowchart TD
+    A[Chat Trigger Node] --> B[Supervisor AI Agent]
+    B --> C[JSON Parser Code Node]
+    C --> D[Intent Switch Node]
+    D -->|Alerts| E[NWS Alerts HTTP Request]
+    D -->|Forecast| F[Geocoding AI Agent]
+    D -->|General| G[Text Extractor Code Node]
+    G --> H[Respond to Webhook Node]
+    E --> I[Alert Formatter AI Agent]
+    F --> J[NWS Points HTTP Request]
+    J --> K[NWS Forecast HTTP Request]
+    K --> L[Forecast Formatter AI Agent]
+    I --> M[User Response]
+    L --> N[User Response]
+    H --> O[User Response]
+    
+    classDef aiAgent fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    class B,F,I,L aiAgent
+```
 
 ### 12-Node Workflow Design
 
