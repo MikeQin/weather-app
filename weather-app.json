@@ -1,0 +1,695 @@
+{
+  "name": "weather-app",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1776,
+        -688
+      ],
+      "id": "cfdf2644-9c14-48a5-8b4b-e52f4786b729",
+      "name": "When chat message received",
+      "webhookId": "f39308de-01aa-43df-81f9-e95f13a31269"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1632,
+        -480
+      ],
+      "id": "a4398e3b-9c23-41f5-adcc-ae6c516cc8fd",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $execution.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1472,
+        -464
+      ],
+      "id": "b163fb99-2840-4278-9996-766704472cff",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a smart assistant that handles weather requests and general questions.\n\nCRITICAL INSTRUCTION FOR WEATHER REQUESTS:\nWhen processing weather/forecast/alert requests, you MUST respond with ONLY the JSON object. No thinking. No explanations. No extra text. No <think> tags in response or output. Just the pure JSON.\n\nFor WEATHER-RELATED requests (alerts, warnings, forecast, weather):\n- Classify intent: \"alerts\" or \"forecast\"\n- Extract state (required, 2-letter code) and city (optional)\n- Return ONLY the classification and location data\n\nFor NON-WEATHER requests (general questions):\n- Provide helpful, well-formatted responses\n- Use clear structure with proper line breaks\n- Add friendly framing when appropriate\n- Include gentle redirect to weather services when relevant\n- Maintain conversational, professional tone\n- No JSON required - return formatted plain text\n\nClassification Rules:\n- \"alerts\"/\"warnings\" + location → JSON: {\"intent\": \"alerts\", \"state\": \"XX\", \"city\": \"City\"}\n- \"weather\"/\"forecast\" + location → JSON: {\"intent\": \"forecast\", \"state\": \"XX\", \"city\": \"City\"}\n- General questions → Plain text response\n\nWEATHER OUTPUT FORMAT:\n{\"intent\": \"forecast\", \"state\": \"TX\", \"city\": \"Dallas\"}\n\nWEATHER OUTPUT CRITICAL: \n- Return ONLY the raw JSON object\n- No markdown code blocks\n- No ``` formatting\n- Return only intent classification and location data\n\nGENERAL RESPONSE FORMATTING GUIDELINES:\n1. **Structure**: Use clear organization with line breaks\n2. **Tone**: Friendly, helpful, professional\n3. **Content**: Provide useful information when possible\n4. **Weather Redirect**: Gently guide back to weather services\n5. **Closing**: Invite weather-related questions\n\nGENERAL OUTPUT EXAMPLES:\n\nFor questions you can answer:\n\"That's an interesting question! [Helpful response]\n\nWhile I'm primarily designed for weather information, I'm happy to help with weather alerts and forecasts for any US location. What weather information can I help you with?\"\n\nFor questions outside your scope:\n\"I'm specialized in weather information, so I'd recommend checking other resources for that question.\n\nHowever, I can provide detailed weather alerts and forecasts for any US location. Would you like to know about current conditions or upcoming weather in your area?\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -1568,
+        -720
+      ],
+      "id": "01b3e197-e8b7-4e5e-87b4-a27c4ae1a3c4",
+      "name": "Supervisor Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -128
+      ],
+      "id": "4cc50d1a-dd8e-43c3-ac5f-9a1717d0d3aa",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $execution.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        -112
+      ],
+      "id": "c08afc78-4ec5-4ae6-ae44-59a9245b4410",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent === \"alerts\" }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "62cad31d-1b02-4702-8914-0b6e85b92181"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Alert Sub-Workflow"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4fbc18c0-4315-4e2d-82ce-43f0361c78ef",
+                    "leftValue": "={{ $json.intent === \"forecast\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Forecast Sub-Workflow"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f3617cbe-4a83-4a7b-abc2-f66db3e05dc2",
+                    "leftValue": "={{ $json.intent === \"general\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": "={{ $json.answer }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -992,
+        -720
+      ],
+      "id": "3cbd3efc-e752-4dda-ba8c-c5a6dd8120b7",
+      "name": "Intent Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.features }}",
+        "options": {
+          "systemMessage": "Format weather alerts into clear, readable text for the public.\n\nFor each alert, format as:\n**[EVENT TYPE] - [SEVERITY]**\nArea: [AREA DESCRIPTION]\n[DESCRIPTION]\nInstructions: [INSTRUCTIONS]\n\nSeparate multiple alerts with double line breaks.\nIf no alerts: \"No active alerts for this state.\"\n\nExample:\n**Tornado Warning - Severe**\nArea: Eastern Dallas County\nA tornado has been spotted moving northeast at 45 mph. Take shelter immediately.\nInstructions: Move to lowest floor, interior room away from windows.\n\nReturn ONLY the formatted alert text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -384,
+        -336
+      ],
+      "id": "220ef282-7074-45c0-aa98-94a2cfd13f2b",
+      "name": "Alert Formatter Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.city }}, {{ $json.state }}",
+        "options": {
+          "systemMessage": "ROLE: You are a Geographic Information Systems (GIS) Specialist with expertise in US geography and coordinate systems.\n\nYour expertise includes:\n- US state and city geography\n- Latitude/longitude coordinate systems\n- Major metropolitan area identification\n- Geographic data accuracy standards\n\nTASK: Convert city,state to latitude,longitude coordinates and preserve all input data.\n\nGuidelines:\n- If no city provided, use the largest/capital city in the state\n- Use precise coordinates for accurate weather data retrieval\n- Focus on population centers for best weather station coverage\n- CRITICAL: Return numeric values (not strings) for latitude and longitude\n- PRESERVE all input fields and ADD coordinates to them\n\nOutput format: Take all input data and add latitude/longitude fields\nExample input: {\"intent\": \"forecast\", \"state\": \"TX\", \"city\": \"Dallas\", \"sessionId\": \"abc123\"}\nExample output: {\"intent\": \"forecast\", \"state\": \"TX\", \"city\": \"Dallas\", \"sessionId\": \"abc123\", \"latitude\": 32.7767, \"longitude\": -96.7970}\n\nIMPORTANT: The latitude and longitude values MUST be numbers, not strings. Preserve ALL original fields.\n\nCRITICAL for Output in JSON format: \n- Return JSON with ALL input fields plus numeric coordinates. \n- No markdown code blocks.\n- No ``` formatting. \n- No <think> tags. No explanations."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -656,
+        -768
+      ],
+      "id": "7cde64b1-e105-4a48-b502-a5ff6219a7cd",
+      "name": "Geocoding Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -528
+      ],
+      "id": "3cc72ca4-394a-4cc5-b435-0de2a2581e34",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $execution.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -528,
+        -512
+      ],
+      "id": "aab84efe-4ef4-4f6f-91fa-5fd9dee105cf",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.properties.periods }}",
+        "options": {
+          "systemMessage": "ROLE: You are a Weather Forecast Communicator specializing in translating meteorological data into accessible, actionable information for the general public.\n\nYour expertise includes:\n- Meteorological terminology and concepts\n- Weather pattern interpretation\n- Public communication of weather risks and conditions\n- Forecast presentation best practices\n\nTASK: Format weather forecast into user-friendly text. Return ONLY the formatted forecast text with no thinking tags or explanations.\n\nFormat requirements:\n- Show next 5 periods with clear temporal organization\n- Include: Period name (Today, Tonight, etc.), Temperature, Wind conditions, Detailed forecast\n- Emphasize conditions that impact daily activities\n- Use clear formatting with line breaks between periods\n- Present information in order of immediate relevance\n\nCRITICAL: Return only the formatted forecast text. No <think> tags. No explanations. No extra text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        -624
+      ],
+      "id": "56702bd7-bd88-4e32-89b7-363980e4036c",
+      "name": "Forecast Formatter Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -400
+      ],
+      "id": "6eeb880e-617c-4611-bbf4-2145090559b3",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $execution.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        -400
+      ],
+      "id": "595078c8-dcbd-456a-a2b8-5344de073b37",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.weather.gov/points/{{ JSON.parse($json.output).latitude }},{{ JSON.parse($json.output).longitude }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "weather-app/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/geo+json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -256,
+        -768
+      ],
+      "id": "dcf705b6-81a2-40aa-9436-948303d15037",
+      "name": "NWS Points Request"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.weather.gov/alerts/active/area/{{ $json.state }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "weather-app/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/geo+json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -672,
+        -336
+      ],
+      "id": "f8161812-af41-4233-a088-ff39bc4803c0",
+      "name": "NWS Alerts Request"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.properties.forecast }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "weather-app/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/geo+json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        -720
+      ],
+      "id": "720ee6ad-70f4-498f-88bf-4871e8d5fd0b",
+      "name": "NWS Forecast Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Supervisor AI Agent output and expose fields for downstream access\nconst output = $input.first().json.output;\n\ntry {\n  // Parse weather JSON response\n  const parsed = JSON.parse(output);\n  return { \n    json: { \n      ...parsed,  // Spreads: intent, state, city\n      isWeather: true,\n      originalOutput: output\n    } \n  };\n} catch {\n  // Handle plain text general responses\n  return { \n    json: { \n      intent: \"general\", \n      answer: output, \n      isWeather: false\n    } \n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        -720
+      ],
+      "id": "82addcde-9ea2-4873-b190-1775721fb32a",
+      "name": "JSON Parser"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.text }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content Type",
+                "value": "text/plain"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -816,
+        -144
+      ],
+      "id": "dd7592fa-0a35-4a54-87f3-6402cdd1428a",
+      "name": "Respond to Webhook",
+      "alwaysOutputData": false,
+      "notes": "Return text/plain only"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract just the answer text for clean webhook response\nconst answerText = $input.first().json.answer;\nreturn [{ json: { text: answerText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        -416
+      ],
+      "id": "096cec65-3b98-4292-bd1a-25d0d2b6183e",
+      "name": "Text Extractor"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Supervisor Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Supervisor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Supervisor Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Agent": {
+      "main": [
+        [
+          {
+            "node": "JSON Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Alert Formatter Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Alert Formatter Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Switch": {
+      "main": [
+        [
+          {
+            "node": "NWS Alerts Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Geocoding Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Text Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Formatter Agent": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Geocoding Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Geocoding Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Forecast Formatter Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Forecast Formatter Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Geocoding Agent": {
+      "main": [
+        [
+          {
+            "node": "NWS Points Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NWS Points Request": {
+      "main": [
+        [
+          {
+            "node": "NWS Forecast Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forecast Formatter Agent": {
+      "main": [
+        []
+      ]
+    },
+    "NWS Alerts Request": {
+      "main": [
+        [
+          {
+            "node": "Alert Formatter Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NWS Forecast Request": {
+      "main": [
+        [
+          {
+            "node": "Forecast Formatter Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "Intent Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Extractor": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7faf973e-ffb5-466b-957e-8aba02323390",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "753fa041cdad5233dd40b5c7dd0896e9b1008d27ac58c421d07cf00175ec90b2"
+  },
+  "id": "2zLiKrF4rXxACVKf",
+  "tags": []
+}
