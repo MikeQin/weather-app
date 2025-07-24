@@ -36,7 +36,7 @@ flowchart LR
 Our system consists of:
 - 🧠 **1 Supervisor Agent**: Intent classification and general Q&A
 - 🤖 **3 Specialized Sub-Agents**: Alert formatting, forecast formatting, and geocoding
-- 🌐 **4 HTTP Request Nodes**: Real-time API integration
+- 🌐 **3 HTTP Request Nodes**: Real-time API integration
 - ⚙️ **4 Workflow Control Nodes**: Routing, parsing, and response handling
 
 ### Detailed System Architecture
